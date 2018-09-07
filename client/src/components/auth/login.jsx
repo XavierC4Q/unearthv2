@@ -5,6 +5,10 @@ import { LOGIN_USER } from '../../graphql/mutation'
 import inputs from 'react-stateless-input'
 
 const LoginPage = () => {
+  const isLoggedIn = localStorage.getItem('User')
+  if(isLoggedIn){
+    return (<Redirect to='/main'/>)
+  }
   return(
     <Mutation mutation={LOGIN_USER}>
       {
@@ -18,7 +22,9 @@ const LoginPage = () => {
                 })
                 .then(({ data }) => {
                   const { login } = data
-                  return login
+                  console.log("LOGIN",login)
+                  localStorage.setItem('User', login.username)
+                  return (<Redirect to='/main'/>)
                 })
                 .catch((error) => {
                   return error

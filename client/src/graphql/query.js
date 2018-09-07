@@ -22,11 +22,11 @@ export const GET_USER = gql`
 `
 export const IS_LOGGED_IN = gql`
   query isLoggedIn {
-    data
+    isLoggedIn
   }
 `
 export const LOGOUT = gql`
   query logout {
-    data
+    logout
   }
 `

@@ -1,9 +1,14 @@
 import React from 'react'
 import { Mutation } from 'react-apollo'
+import { Redirect } from 'react-router-dom'
 import inputs from 'react-stateless-input'
 import {REGISTER_USER} from '../../graphql/mutation'
 
 const RegisterPage = () => {
+  const isLoggedIn = localStorage.getItem('User')
+  if(isLoggedIn){
+    return (<Redirect to='/main'/>)
+  }
   return (<Mutation mutation={REGISTER_USER}>
     {
       (register, {data}) => (<div>
@@ -21,7 +26,8 @@ const RegisterPage = () => {
               }
             }).then(({data}) => {
               const { register } = data
-              return register
+              localStorage.setItem('User', register.username)
+              return (<Redirect to='/main'/>)
             }).catch((error) => {
               return error
             })
