@@ -1,42 +1,24 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
-import {Query} from 'react-apollo'
-import {ALL_USERS} from '../../graphql/query'
+import {Link} from 'react-router-dom'
 
 const LandingPage = () => {
-  const isLoggedIn = localStorage.getItem('User')
-  return (<Query query={ALL_USERS}>
+  const loggedInUser = localStorage.getItem('User')
+  const profilepath = `/profile/${loggedInUser}`
+  return (<div>
     {
-      ({loading, error, data}) => {
-        const {allUsers} = data
-        if (error)
-          return <div>error loading users</div>
-        if (loading && !allUsers)
-          return <div>loading loading</div>
-
-        return (<div>
-          {
-            isLoggedIn ? <nav>
-            <Link to='/main'>MAIN</Link>
+      loggedInUser
+        ? <nav>
+            <Link to={profilepath}>PROFILE</Link>
           </nav>
-          :
-          <nav>
+        : <nav>
             <Link to='/login'>LOGIN</Link>
             {" "}
             <Link to='/register'>REGISTER</Link>
             {" "}
           </nav>
-          }
-          <h1>Landing Page</h1>
-          {
-            allUsers.map(user => (
-              <p>{user.username}</p>
-            ))
-          }
-        </div>)
-      }
     }
-  </Query>)
+    <h1>Landing Page</h1>
+  </div>)
 }
 
 export default LandingPage

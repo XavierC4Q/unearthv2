@@ -1,4 +1,5 @@
 import React from 'react'
+import { Redirect } from 'react-router-dom'
 import { ApolloConsumer } from 'react-apollo'
 import { LOGOUT } from '../../graphql/query'
 
