@@ -7,7 +7,7 @@ module.exports = {
         return true
       }
       else {
-        return false
+        return null
       }
     },
     allUsers: async (obj, args, context, info) => {
