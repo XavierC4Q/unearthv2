@@ -6,8 +6,8 @@ import {LogOut} from './logout'
 
 class ProfilePage extends React.Component {
   render() {
-    const {username} = this.props
-    const isOwnProfile = localStorage.User === username
+    const {username, user} = this.props
+    const isOwnProfile = user.username === username
     return (<Query query={GET_USER} variables={{
         username: username
       }}>

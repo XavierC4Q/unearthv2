@@ -2,16 +2,29 @@ import React from 'react'
 import { Mutation } from 'react-apollo'
 import { Redirect } from 'react-router-dom'
 import inputs from 'react-stateless-input'
+import gql from 'graphql-tag'
 import {REGISTER_USER} from '../../graphql/mutation'
+
+const CurrentUserFragment = gql `
+  fragment CurrentUser on User {
+    username
+    email
+    photo
+    firstName
+    lastName
+  }
+`
 
 class RegisterPage extends React.PureComponent{
   constructor(){
     super()
-    this.state = {success: false}
+    this.state = {loggedIn: false}
   }
-  render(){
-    if(this.state.success){
-      return(<Redirect to='/main'/>)
+  render() {
+    const {client} = this.props
+
+    if(this.state.loggedIn){
+      return(<Redirect to='/'/>)
     }
     return (<Mutation mutation={REGISTER_USER}>
       {
@@ -30,9 +43,18 @@ class RegisterPage extends React.PureComponent{
                 }
               }).then(({data}) => {
                 const { register } = data
-                localStorage.setItem('User', register.username)
-                this.setState({success: true})
-                return register
+                const {username, email, photo, firstName, lastName} = register
+                const info = {
+                  __typename: 'User',
+                  username: username,
+                  email: email,
+                  photo: photo,
+                  firstName: firstName,
+                  lastName: lastName
+                }
+                client.writeFragment({id: 'CurrentUser', fragment: CurrentUserFragment, data: info})
+              }).then(() => {
+                this.setState({ loggedIn: true })
               }).catch((error) => {
                 return error
               })

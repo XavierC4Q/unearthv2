@@ -1,12 +1,11 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
 
-const LandingPage = () => {
-  const loggedInUser = localStorage.getItem('User')
-  const profilepath = `/profile/${loggedInUser}`
+const LandingPage = ({ currentUser }) => {
+  const profilepath = currentUser ? `/profile/${currentUser.username}` : null
   return (<div>
     {
-      loggedInUser
+      currentUser
         ? <nav>
             <Link to={profilepath}>PROFILE</Link>
           </nav>
