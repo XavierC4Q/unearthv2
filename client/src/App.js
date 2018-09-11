@@ -9,7 +9,7 @@ import RegisterPage from './components/auth/register'
 import LandingPage from './components/landing/landing'
 import ProfilePage from './components/profile/profilepage'
 
-const CurrentUserFragment = gql`
+const CurrentUserFragment = gql `
   fragment CurrentUser on User {
     username
     email
@@ -22,17 +22,14 @@ const CurrentUserFragment = gql`
 class App extends Component {
 
   render() {
-    const currentUser = this.props.client.readFragment({
-      id: 'CurrentUser',
-      fragment: CurrentUserFragment
-    })
-    console.log('SAFARI',currentUser)
+    const currentUser = this.props.client.readFragment({id: 'CurrentUser', fragment: CurrentUserFragment})
+    console.log('the entiree zoooo is here', currentUser)
     const isLoggedIn = !!currentUser
     return (<div>
       <Switch>
         <Route exact="exact" path='/profile/:username' render={props => {
-            const { username } = props.match.params
-            return(<ProfilePage user={currentUser} username={username}/>)
+            const {username} = props.match.params
+            return (<ProfilePage user={currentUser} username={username}/>)
           }}/>
         <Route exact="exact" path='/login' render={() => (
             isLoggedIn
@@ -42,7 +39,7 @@ class App extends Component {
             isLoggedIn
             ? (<Redirect to='/'/>)
             : (<RegisterPage client={this.props.client}/>))}/>
-          <Route path='/' render={() => <LandingPage currentUser={currentUser}/>}/>
+        <Route path='/' render={() => <LandingPage currentUser={currentUser}/>}/>
       </Switch>
     </div>);
   }

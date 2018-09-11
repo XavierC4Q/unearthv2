@@ -9,7 +9,7 @@ const LOGOUT = gql`
   }
 `
 
-export const LogOut = () => {
+const LogOut = ({ user }) => {
   return(
     <ApolloConsumer>
       {client => (
@@ -17,10 +17,12 @@ export const LogOut = () => {
             const { success } = await client.query({
               query: LOGOUT
             })
-            localStorage.removeItem('User')
+            await client.resetStore()
             return success
           }}>LOGOUT</button>
       )}
     </ApolloConsumer>
   )
 }
+
+export default LogOut

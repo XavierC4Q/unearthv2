@@ -9,7 +9,7 @@ fragment CurrentUser on User {
   lastName
 }`
 
-const userID = `User:CurrentUser`
+const userID = 'CurrentUser'
 
 export const UserResolvers = {
   defaults: {
@@ -18,7 +18,11 @@ export const UserResolvers = {
   resolvers: {
     Query: {
       getCurrentUser: (_, args, { cache }) => {
-        return cache.readFragment({ CurrentUserFragment, userID })
+        return cache.readFragment({ fragment:CurrentUserFragment, id:userID })
+      },
+      logoutUser: async (_, args, { cache }) => {
+        await cache.resetStore()
+        return null
       }
     },
     Mutation: {

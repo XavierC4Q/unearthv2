@@ -1,19 +1,10 @@
 import React from 'react'
-import { Mutation } from 'react-apollo'
-import { Redirect } from 'react-router-dom'
+import {graphql, compose} from 'react-apollo'
+import {Redirect} from 'react-router-dom'
 import inputs from 'react-stateless-input'
 import gql from 'graphql-tag'
 
-const REGISTER_USER = gql `
-  mutation register($username: String!, $password: String!, $email: String!, $photo: String, $firstName: String, $lastName: String){
-    register(username: $username, password: $password, email: $email, photo: $photo, firstName: $firstName, lastName: $lastName){
-      username
-      email
-    }
-  }
-`
-
-const CurrentUserFragment = gql `
+const CurrentUser = gql `
   fragment CurrentUser on User {
     username
     email
@@ -23,80 +14,113 @@ const CurrentUserFragment = gql `
   }
 `
 
-class RegisterPage extends React.PureComponent{
-  constructor(){
-    super()
-    this.state = {loggedIn: false}
-  }
-  render() {
-    const {client} = this.props
-
-    if(this.state.loggedIn){
-      return(<Redirect to='/'/>)
+const REGISTER_USER = gql `
+  mutation register($username: String!, $password: String!, $email: String!, $photo: String, $firstName: String, $lastName: String){
+    register(username: $username, password: $password, email: $email, photo: $photo, firstName: $firstName, lastName: $lastName){
+      ...CurrentUser
     }
-    return (<Mutation mutation={REGISTER_USER}>
-      {
-        (register, {data}) => (<div>
-          <form onSubmit={e => {
-              e.preventDefault()
-              const {username, password, email, firstName, lastName, photo} = inputs()
-              register({
-                variables: {
-                  username: username,
-                  password: password,
-                  email: email,
-                  firstName: firstName,
-                  lastName: lastName,
-                  photo: photo
-                }
-              }).then(({data}) => {
-                const { register } = data
-                const {username, email, photo, firstName, lastName} = register
-                const info = {
-                  __typename: 'User',
-                  username: username,
-                  email: email,
-                  photo: photo,
-                  firstName: firstName,
-                  lastName: lastName
-                }
-                client.writeFragment({id: 'CurrentUser', fragment: CurrentUserFragment, data: info})
-              }).then(() => {
-                this.setState({ loggedIn: true })
-              }).catch((error) => {
-                return error
-              })
-            }}>
-            <div>
-              <h3>Username</h3>
-              <input type='text' name='username' placeholder='Enter username'></input>
-            </div>
-            <div>
-              <h3>Password</h3>
-              <input type='text' name='password' placeholder='Enter password'></input>
-            </div>
-            <div>
-              <h3>Email</h3>
-              <input type='text' name='email' placeholder='Enter email'></input>
-            </div>
-            <div>
-              <h3>First Name</h3>
-              <input type='text' name='firstName' placeholder='Enter first name'></input>
-            </div>
-            <div>
-              <h3>Last Name</h3>
-              <input type='text' name='lastName' placeholder='Enter last name'></input>
-            </div>
-            <div>
-              <h3>Photo</h3>
-              <input type='text' name='photo' placeholder='Enter photo'></input>
-            </div>
-            <button type='submit'>Submit</button>
-          </form>
-        </div>)
-      }
-    </Mutation>)
+  }
+  ${CurrentUser}
+`
+
+const SET_CURRENT_USER = gql `
+  mutation setCurrentUser($username: String!, $email: String!, $photo: String, $firstName: String, $lastName: String){
+    setCurrentUser(username: $username, email: $email, photo: $photo, firstName: $firstName, lastName: $lastName) @client
+  }
+`
+
+class RegisterPage extends React.PureComponent {
+  constructor() {
+    super()
+    this.state = {
+      success: false
+    }
+  }
+
+  registerUser = (e) => {
+    e.preventDefault()
+    const {
+      username,
+      password,
+      email,
+      photo,
+      firstName,
+      lastName
+    } = inputs()
+    const {register, setCurrentUser} = this.props
+    register(username, password, email, photo, firstName, lastName).then((res) => {
+      const {username, email, photo, firstName, lastName} = res
+      setCurrentUser(username, email, photo, firstName, lastName).then(() => {
+        this.setState({success: true})
+      }).catch((err) => {
+        console.log('error setting the user', err)
+        return err
+      })
+    }).catch((err) => {
+      console.log('error logging in sir', err)
+      return err
+    })
+  }
+
+  render() {
+    if (this.state.success) {
+      return (<Redirect to='/'/>)
+    }
+    return (<div>
+      <form onSubmit={this.registerUser}>
+        <div>
+          <h3>Username</h3>
+          <input type='text' name='username' placeholder='Enter username'></input>
+        </div>
+        <div>
+          <h3>Password</h3>
+          <input type='text' name='password' placeholder='Enter password'></input>
+        </div>
+        <div>
+          <h3>Email</h3>
+          <input type='text' name='email' placeholder='Enter email'></input>
+        </div>
+        <div>
+          <h3>Photo</h3>
+          <input type='text' name='photo' placeholder='Enter photo'></input>
+        </div>
+        <div>
+          <h3>First Name</h3>
+          <input type='text' name='firstName' placeholder='Enter your first name'></input>
+        </div>
+        <div>
+          <h3>Last Name</h3>
+          <input type='text' name='lastName' placeholder='Enter your last name'></input>
+        </div>
+        <button type='submit'>Submit Sir</button>
+      </form>
+    </div>)
   }
 }
 
-export default RegisterPage
+export default compose(graphql(SET_CURRENT_USER, {
+  props: ({mutate}) => ({
+    setCurrentUser: (username, email, photo, firstName, lastName) => mutate({
+      variables: {
+        username,
+        email,
+        photo,
+        firstName,
+        lastName
+      }
+    })
+  })
+}), graphql(REGISTER_USER, {
+  props: ({mutate}) => ({
+    register: (username, password, email, photo, firstName, lastName) => mutate({
+      variables: {
+        username,
+        password,
+        email,
+        photo,
+        firstName,
+        lastName
+      }
+    })
+  })
+}))(RegisterPage)

@@ -1,40 +1,64 @@
 import React from 'react'
-import {Query} from 'react-apollo'
-import {GET_USER} from '../../graphql/query'
+import {Redirect} from 'react-router-dom'
+import {Query, compose, withApollo, graphql} from 'react-apollo'
+import gql from 'graphql-tag'
 
-import {LogOut} from './logout'
+import LogOut from './logout'
+
+const CurrentUser = gql `
+  fragment CurrentUser on User {
+    username
+    email
+    photo
+    firstName
+    lastName
+  }
+`
+
+const GET_USER = gql `
+  query getUser($username: String!) {
+    getUser(username: $username){
+      ...CurrentUser
+    }
+  }
+  ${CurrentUser}
+`
+
+const GET_CURRENT_USER = gql `
+  query getCurrentUser {
+    getCurrentUser @client
+  }
+`
 
 class ProfilePage extends React.Component {
+  constructor() {
+    super()
+    this.state = {
+      currentUser: false,
+      pageOwner: false
+    }
+  }
+
   render() {
-    const {username, user} = this.props
-    const isOwnProfile = user.username === username
-    return (<Query query={GET_USER} variables={{
-        username: username
-      }}>
-      {
-        ({loading, error, data}) => {
-          if (error)
-            return (<div>error userpage</div>)
-          if (loading && !data)
-            return (<div>loading user page</div>)
-          if (data) {
-            const {getUser} = data
-            if (getUser) {
-              const {username, email, photo, firstName, lastName} = getUser
-              return (<div>
-                <h1>USERPAGE of {username}</h1>
-                {
-                  isOwnProfile ? <LogOut/> : ''
-                }
-              </div>)
-            } else {
-              return (<div>no such user</div>)
-            }
-          }
-        }
-      }
-    </Query>)
+    console.log("STATE", this.props)
+    return (<div>The profile profile</div>)
   }
 }
 
-export default ProfilePage
+export default compose(graphql(GET_CURRENT_USER, {
+  props: ({data: {
+      getCurrentUser
+    }}) => {
+    return {getCurrentUser}
+  }
+}), graphql(GET_USER, {
+  props: ({
+    data: {
+      loading,
+      error,
+      getUser
+    }
+  }) => {
+    return {getUser}
+  }
+}))(withApollo(ProfilePage))

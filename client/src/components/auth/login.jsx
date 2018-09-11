@@ -1,6 +1,6 @@
 import React from 'react'
 import {Redirect} from 'react-router-dom'
-import {Mutation, graphql, compose} from 'react-apollo'
+import {graphql, compose} from 'react-apollo'
 import gql from 'graphql-tag'
 import inputs from 'react-stateless-input'
 
