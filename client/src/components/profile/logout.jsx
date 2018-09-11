@@ -1,7 +1,13 @@
 import React from 'react'
 import { Redirect } from 'react-router-dom'
 import { ApolloConsumer } from 'react-apollo'
-import { LOGOUT } from '../../graphql/query'
+import gql from 'graphql-tag'
+
+const LOGOUT = gql`
+  query logout {
+    logout
+  }
+`
 
 export const LogOut = () => {
   return(

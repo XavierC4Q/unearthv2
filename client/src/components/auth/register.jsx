@@ -3,7 +3,15 @@ import { Mutation } from 'react-apollo'
 import { Redirect } from 'react-router-dom'
 import inputs from 'react-stateless-input'
 import gql from 'graphql-tag'
-import {REGISTER_USER} from '../../graphql/mutation'
+
+const REGISTER_USER = gql `
+  mutation register($username: String!, $password: String!, $email: String!, $photo: String, $firstName: String, $lastName: String){
+    register(username: $username, password: $password, email: $email, photo: $photo, firstName: $firstName, lastName: $lastName){
+      username
+      email
+    }
+  }
+`
 
 const CurrentUserFragment = gql `
   fragment CurrentUser on User {
