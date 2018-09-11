@@ -9,7 +9,8 @@ import {withClientState} from 'apollo-link-state'
 import {HttpLink} from 'apollo-link-http';
 import {InMemoryCache,defaultDataIdFromObject} from 'apollo-cache-inmemory'
 
-import './index.css';
+import { merge } from 'lodash'
+import {UserResolvers} from './resolvers/userresolvers'
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 
@@ -22,7 +23,7 @@ const cache = new InMemoryCache({
   }
 })
 
-const statelink = withClientState({cache, resolvers: {}, defaults: {}})
+const statelink = withClientState({cache, ...merge(UserResolvers)})
 
 const client = new ApolloClient({
   link: ApolloLink.from([statelink, new HttpLink({uri: `http://localhost:4000/api`})]),
